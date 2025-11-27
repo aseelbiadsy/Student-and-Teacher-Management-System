@@ -1,0 +1,123 @@
+Student & Teacher Management System – Documentation
+Full-Stack Web Application
+الهدف: إدارة الطلاب والمعلمين والواجبات الدراسية مع تفعيل نظام صلاحيات يتيح لكل دور القيام بما هو مسموح له.
+
+
+ملخص المشروع:
+
+المعلم (Teacher) يمكنه إنشاء الواجبات، تعديلها، حذفها، تقييم الواجبات، وعرض التسليمات الخاصة بالطلاب.
+
+الطالب (Student) يمكنه عرض الواجبات، تقديم الواجبات، ومتابعة درجاته.
+
+نظام يعتمد على ASP.NET Core للـ Backend وReact للـ Frontend.
+
+يستخدم ASP.NET Core Identity لإدارة المستخدمين والأدوار والصلاحيات.
+
+| الدور   | الصلاحيات                                                                                         |
+| ------- | ------------------------------------------------------------------------------------------------- |
+| Teacher | Create Assignment, Edit Assignment, Delete Assignment, Grade Assignment, View Student Submissions |
+| Student | View Assignments, Submit Assignment, View Grades                                                  |
+| Admin*  | Manage Users, Manage Roles, Manage Permissions, بالإضافة إلى صلاحيات المعلم                       |
+
+
+
+تسجيل الدخول للمستخدمين الافتراضيين
+ 
+| الدور   | البريد الإلكتروني    | كلمة المرور  |
+| ------- | ------------------------- | ------------ |
+| Admin*  | [admin@test.com]  | Admin123!    |
+| Teacher | [teacher@test.com]  | Password123! |
+| Student | [student@test.com]  | Password123! |
+
+
+ـ API Endpoints
+| Endpoint                                    | Method | Description             | Request Body / Params                          | Response        |
+| ------------------------------------------- | ------ | ----------------------- | ---------------------------------------------- | --------------- |
+| /api/Assignments                            | GET    | جلب جميع الواجبات       | –                                              | قائمة الواجبات  |
+| /api/Assignments                            | POST   | إنشاء واجب جديد         | `CreateAssignmentModel` { title, description } | رسالة نجاح      |
+| /api/Assignments/{id}                       | PUT    | تعديل واجب موجود        | `CreateAssignmentModel` { title, description } | رسالة نجاح      |
+| /api/Assignments/{id}                       | DELETE | حذف واجب                | id (Path Parameter)                            | رسالة نجاح      |
+| /api/Assignments/{assignmentId}/submissions | GET    | جلب جميع تسليمات الواجب | assignmentId (Path Parameter)                  | قائمة التسليمات |
+| /api/Assignments/{assignmentId}/submit      | POST   | تقديم واجب              | `SubmitModel` { Submission content }           | رسالة نجاح      |
+| /api/Assignments/grade/{submissionId}       | POST   | تقييم تسليم واجب        | `GradeModel` { Grade }                         | رسالة نجاح      |
+| /api/Assignments/my-grades                  | GET    | الحصول على درجات الطالب | –                                              | قائمة الدرجات   |
+
+
+
+| Endpoint              | Method | Description                       | Request Body                                             | Response                    |
+| --------------------- | ------ | --------------------------------- | -------------------------------------------------------- | --------------------------- |
+| /api/Account/register | POST   | تسجيل مستخدم جديد                 | `RegisterModel` { Email, Password, FullName, IsTeacher } | رسالة نجاح أو قائمة الأخطاء |
+| /api/Account/login    | POST   | تسجيل الدخول                      | `LoginModel` { Email, Password, RememberMe }             | بيانات المستخدم مع الأدوار  |
+| /api/Account/logout   | POST   | تسجيل الخروج                      | –                                                        | رسالة نجاح                  |
+| /api/Account/user     | GET    | الحصول على بيانات المستخدم الحالي | –                                                        | بيانات المستخدم مع الأدوار  |
+
+
+| Endpoint                                | Method | Description                    | Request Body                                 | Response                  |
+| --------------------------------------- | ------ | ------------------------------ | -------------------------------------------- | ------------------------- |
+| /api/Admin/roles                        | GET    | جلب جميع الأدوار               | –                                            | قائمة الأدوار             |
+| /api/Admin/roles/{roleName}/permissions | GET    | جلب صلاحيات دور محدد           | roleName (Path Parameter)                    | قائمة الصلاحيات           |
+| /api/Admin/roles/{roleName}/permissions | PUT    | تحديث صلاحيات دور              | `UpdatePermissionsModel` { Permissions: [] } | رسالة نجاح                |
+| /api/Admin/users                        | GET    | جلب جميع المستخدمين مع أدوارهم | –                                            | قائمة المستخدمين والأدوار |
+| /api/Admin/users/{userId}/roles         | PUT    | تحديث أدوار مستخدم             | `UpdateUserRolesModel` { Roles: [] }         | رسالة نجاح                |
+
+
+
+ملاحظات إضافية
+
+يمكن تعديل صلاحيات الأدوار إذا تم تنفيذ البونس Admin.
+
+قاعدة البيانات: SQL Server (StudentTeacherDB)
+
+تعليمات لتغيير المستخدمين:
+
+إنشاء مستخدم جديد: /api/Account/register
+
+تحديث الدور: /api/Admin/users/{userId}/roles
+
+
+
+Schemas
+RegisterModel
+{
+  "Email": "string",
+  "Password": "string",
+  "FullName": "string",
+  "IsTeacher": true
+}
+
+LoginModel
+{
+  "Email": "string",
+  "Password": "string",
+  "RememberMe": true
+}
+
+CreateAssignmentModel
+{
+  "title": "string",
+  "description": "string"
+}
+
+GradeModel
+{
+  "Grade": "number"
+}
+
+SubmitModel
+{
+  "Content": "string"
+}
+
+UpdatePermissionsModel
+{
+  "Permissions": ["string"]
+}
+
+UpdateUserRolesModel
+{
+  "Roles": ["string"]
+}
+
+
+
+
